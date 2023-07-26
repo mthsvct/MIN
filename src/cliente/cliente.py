@@ -22,13 +22,15 @@ class Cliente:
                 filme = s.recv(1024)
                 print(filme.decode())
 
+                duracao = int(filme.decode().split(';')[0].split(',')[3])
+
                 while True:
                     frame = s.recv(1024)
                     if not frame: 
                         break
                     if frame.decode() == '-1': 
                         break
-                    print(frame.decode())
+                    print(f"Frame recebido: {frame.decode()} / {duracao}")
 
                 c += 1
 

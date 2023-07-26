@@ -45,11 +45,11 @@ class SStream:
                         conn.sendall(cabecalho.encode())
                         
 
-                        for i in range(sel['duracao']):
-                            sleep(0.1)
-                            mins = i // 60
-                            secs = i % 60
-                            conn.sendall(f'Minutagem Transmitida: {mins}:{secs}'.encode())
+                        for i in range(1, sel['duracao'] + 1):
+                            sleep(0.01)
+                            # mins = i // 60
+                            # secs = i % 60
+                            conn.sendall(f'{i}'.encode())
                             print(f'Enviando frame {i}...')
                         
                         conn.sendall('-1'.encode())

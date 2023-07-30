@@ -65,14 +65,15 @@ class Orquestrador(HostPort):
             self.calculaDistancias(novo)
             self.clientes.append(novo)
             
-            for i in self.tabelaPosicoes:
+            for i in self.tabelaPosicoes: 
                 print(f"Distancia de {i['C']} para {i['V']} é {i['D']}")
 
             novo.run(self.servidor.menu(), self)
+            self.solicitaFilme(novo, novo.idFilme)
             
         elif tipo == 2:
             print(f"Video com o endereço {addr} conectado.")
-            novo = Video(host=addr[0],port=addr[1],x=x,y=y,conn=conn,addr=addr)
+            novo = Video(host=addr[0],port=addr[1], x=x, y=y, conn=conn, addr=addr)
             self.videos.append(novo)
             novo.run()
 

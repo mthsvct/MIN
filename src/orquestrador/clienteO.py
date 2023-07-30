@@ -42,7 +42,7 @@ class Cliente(HostPort, Posicoes):
         if op > 0:
             self.idFilme = op - 1
             self.status = "espera"
-            orq.solicitaFilme(self, self.idFilme)
+            # orq.solicitaFilme(self, self.idFilme)
         
 if __name__ == "__main__":
     cliente = Cliente(

@@ -17,7 +17,7 @@ class Video(HostPort, Posicoes):
             status:str="espera",
             limite:int=3,
             numClientes:int=0,
-            conn:socket=None,
+            conn:socket.socket=None,
             addr:tuple=None,
             filme:list=[]
         ) -> None:
@@ -47,22 +47,27 @@ class Video(HostPort, Posicoes):
     def run(self):
         # Informar que está conectado ao orquestrador
         self.conn.sendall(b"Conectado ao orquestrador com sucesso. filmeId: " + str(self.idFilme).encode())
+
+        
     
     def addCliente(self, cliente):
         self.clientes.append(cliente.id)
         self.numClientes += 1
-    
     
     def transmitir(self):
         # Função que transmite algo para o endereço.
         pass
 
     def transmiteFilme(self, cliente, idFilme, cabecalho:str):
-        self.idFilme = idFilme
-        self.status = "transmitindo filme para video"
-        self.conn.sendall(cabecalho.encode())
-        print("Cabeçalho do filme enviado para o video...")
-
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            # Transmitir o filme para o video
+            s.connect(self.addr)
+            self.idFilme = idFilme
+            self.status = "transmitindo filme para video"
+            s.sendall(cabecalho.encode())
+            print("Cabeçalho do filme enviado para o video...")
+            sleep(1)
+        
 
 
     

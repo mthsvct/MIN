@@ -2,11 +2,9 @@ import socket
 from time import sleep
 
 
-
 host = "localhost"
 port = 2000 # Porta da comunicação do orquestrador.
 clientes = []
-
 
 
 
@@ -14,21 +12,17 @@ clientes = []
 x = int(input("Digite a posicao X: "))
 y = int(input("Digite a posicao Y: "))
 
-# Criando o socket.
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((host, port)) # Conectando ao orquestrador.
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((host, port)) # Conectando ao orquestrador.
+    s.sendall(f"2;{x};{y}".encode()) # Mandando um sinal para o orquestrador, informando que é um vídeo.
+    res = s.recv(1024)
+    print("Resposta: ", res.decode())
 
-
-sinal = f"2;{x};{y}"
-s.sendall(sinal.encode())
-
-res = s.recv(1024)
-print("Resposta: ", res.decode())
-
-while True:
-    cabecalho = s.recv(1024)
+    while True:
+        sleep(1)
+        cabecalho = s.recv(1024)
+        if cabecalho is not None and cabecalho != b"":
+            break
+    
     print("Cabecalho: ", cabecalho.decode())
-
-filme = None
-
 

@@ -11,7 +11,7 @@ class VidCliente:
         self.distancia = distancia
         self.conn = conn
         self.addr = addr
-        self.latencia = (distancia * 0.1) + 1
+        self.latencia = (distancia * 0.1)
 
     def enviar(self, filme:VidFilme):
 

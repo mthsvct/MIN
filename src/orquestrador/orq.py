@@ -103,6 +103,9 @@ class Orquestrador:
             print("Menu enviado ao CLIENTE.")
 
             resOp = cliente.conn.recv(1024) # Recebe a opção escolhida pelo cliente. IdFilme
+            
+            print(f"RespOp: {resOp.decode()}")
+
             op = int(resOp.decode())
             print(f"Opção escolhida pelo CLIENTE: {op}")
 
@@ -112,9 +115,7 @@ class Orquestrador:
         print(f"Encerrando conexão com cliente de endereco {cliente.id} {cliente.addr}")
 
     def selectVideo(self, cliente:OrqCliente, op:int):
-
         while True:
-
             videoComFilme, videosDisponiveis = self.buscaVideoFilme(op)
 
             if videoComFilme != None:
@@ -125,6 +126,10 @@ class Orquestrador:
                 if videoComFilme.haVagas():
                     # Apenas adiciona o cliente na lista de clientes do vídeo.
                     videoComFilme.addCliente(cliente)
+                    cliente.conn.sendall(f"{videoComFilme.host};{videoComFilme.port};{dis};{cliente.id}".encode())
+                    print(f"Vídeo mais próximo encontrado. {v}")
+                    break
+                
                 else:
                     # Verifica se existe um vídeo mais próximo que possui vagas. <- ISSO EU NÃO VOU FAZER
                     # Colocar o cliente na lista de espera do Video
@@ -133,14 +138,16 @@ class Orquestrador:
                     # Caso não haja, ele manda sinal de subtração para o orquestrador. Informando que o número de clientes assistindo diminuiu.
                     print("EXISTE 1 vídeo transmitindo o filme desejado, porém não há vagas nele ainda. Aguardando...")
                     sleep(5)
+
             else:
                 print("Não existe um vídeo que transmite o filme desejado.")
-
+                
                 if len(videosDisponiveis) == 0:
                     # Não existe nenhum vídeo disponível para transmitir o filme desejado.
                     # Logo, deve ser armazenado em uma lista de espera.
                     print("Não existe nenhum vídeo disponível para transmitir o filme desejado.")
                     sleep(5)
+                    
                 else:
                     # Se existir videos disponíveis, logo fazer a busca do ideal. (Mais próximo do cliente)
                     dis, v = self.maisPerto(cliente, videosDisponiveis)
@@ -148,9 +155,7 @@ class Orquestrador:
                     filme = self.stream.recebeFilme(op)
                     v.filme = filme
                     v.enviarFilme()
-                    cliente.conn.sendall(f"{v.host};{v.port};{dis};{cliente.id}".encode())
-                    print(f"Vídeo mais próximo encontrado. {v}")
-                    break
+
 
 
 

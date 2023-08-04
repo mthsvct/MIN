@@ -115,14 +115,14 @@ class Video:
                 print(f"Recebido do filme {self.filme}: {f}/{self.filme.duracao}.")
         
         self.filme.dados = dados
-
+        
         print(f"Filme {self.filme} recebido!\n")
 
 
     def transmitir(self, cliente:VidCliente):
         print(f"Transmitindo filme {self.filme} para o cliente {cliente.id}...")
         cliente.enviar(self.filme) # Filme é transmitido ao cliente.
-        self.removeCliente(cliente) # Cliente é removido da lista de clientes do vídeo.
+        
 
     def addCliente(self, cliente:VidCliente):
         while True:
@@ -130,6 +130,7 @@ class Video:
                 self.clientes.append(cliente)
                 print(f"Cliente {cliente.id} adicionado à lista de clientes do vídeo {self.id}.")
                 self.transmitir(cliente)
+                self.removeCliente(cliente) # Cliente é removido da lista de clientes do vídeo.
                 break
             else:
                 print(f"Não há vagas para o cliente {cliente.id} no vídeo {self.id}. Adicionando à lista de espera...")

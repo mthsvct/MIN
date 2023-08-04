@@ -36,12 +36,25 @@ class OrqVideo:
         print("Limite recebido: ", limite.decode())
         self.limite = int(limite)
 
+
     # Se a quantidade de clientes assistindo for menor que o limite então há limites.
     def haVagas(self): return len(self.clientes) < self.limite
 
-    def addCliente(self, cliente:OrqCliente): pass
 
-    def addClienteEspera(self, cliente:OrqCliente): pass
+    def addCliente(self, cliente:OrqCliente): 
+        self.clientes.append(cliente)
+        cliente.video = self
+        print(f"Cliente {cliente.id} adicionado ao vídeo {self.id}.")
+
+
+    def rmCliente(self, cliente:OrqCliente):
+        self.clientes.remove(cliente)
+        cliente.video = None
+        print(f"Cliente {cliente.id} removido do vídeo {self.id}.")
+
+
+    def addClienteEspera(self, cliente:OrqCliente): 
+        pass
     
     def enviarFilme(self): 
         self.socket.sendall(self.filme.cabecalho.encode())
@@ -54,6 +67,19 @@ class OrqVideo:
         
         self.socket.sendall("#".encode())
         print(f"ORQUESTRADOR enviou o filme {self.filme} para o VIDEO.")
+
+        self.aguardar()
+
+    def aguardar(self):
+
+        while True:
+            # Receber a instrução de que Láááá no vídeo aconteceu:
+            # 1 - Um novo cliente entrou e está assistindo (Adicionar o cliente na lista de clientes)
+            # 2 - Um novo cliente entrou e está esperando (Adicionar o cliente na lista de espera)
+            # 3 - Um cliente saiu. (Buscar o cliente o id e remover aqui na lista de clientes)
+            # 4 - Não há mais nenhum cliente assistindo. (Remover o filme da memória)
+            break
+
 
 
 

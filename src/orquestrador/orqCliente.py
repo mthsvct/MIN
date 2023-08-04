@@ -14,6 +14,7 @@ class OrqCliente:
         self.id = OrqCliente.id
         self.addr = addr
         self.conn:socket.socket = conn
+        self.status = 0 # 0 - Disponível. 1 - Assistindo. 2 - Em espera.
         OrqCliente.id += 1
 
     def run(self, orq):

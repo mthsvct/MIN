@@ -43,6 +43,9 @@ class Conector:
         msg = self.receber()
         return int(msg) if msg != None else None
     
+    def receberLista(self):
+        msg = self.receber()
+        return msg.split(";") if msg != None else None
 
     # ------------------- CONN será um SERVIDOR ------------------- #
     
@@ -58,8 +61,8 @@ class Conector:
                 print(f"\n---- Servidor rodando em {self.host}:{self.port} ----\n")
                 break
             except OSError:
-                print("\n----- Porta em uso, tentando novamente em 5 segundos ----- \n")
-                sleep(5)
+                print("\n----- Porta em uso, tentando novamente em 3 segundos ----- \n")
+                sleep(3)
 
     # ------------------- CONN será um CLIENTE ------------------- #
 
@@ -74,6 +77,5 @@ class Conector:
                 print(f"\n----- Conectado a {self.host}:{self.port} -----\n")
                 break
             except OSError:
-                print("\n----- Servidor não encontrado, tentando novamente em 5 segundos ----- \n")
-                sleep(5)
-
+                print("\n----- Servidor não encontrado, tentando novamente em 3 segundos ----- \n")
+                sleep(3)

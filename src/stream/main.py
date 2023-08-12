@@ -12,16 +12,16 @@ class Stream(Conector):
         host:str="localhost",
         port:int=5000
     ):
-        self.filmes = [
-            Filme("Kill Bill", 2003, "Ação", 111),
-            Filme("Barbie", 2023, "Comedia", 97),
-            Filme("Bacurau", 2019, "Drama", 132),
-            Filme("O Poderoso Chefão", 1972, "Drama", 175),
-            Filme("Fargo", 1996, "Comedia", 98),
-        ],
         self.orq:StrOrq = None
         super().__init__(host, port)
-        
+        self.filmes: list = [
+            Filme("Bacurau", 2019, "Drama", 131),
+            Filme("O Auto da Compadecida", 2000, "Comédia", 104),
+            Filme("O Homem que Copiava", 2003, "Comédia", 123),
+            Filme("Cidade de Deus", 2002, "Drama", 130),
+            Filme("O Palhaço", 2011, "Comédia", 88),
+        ]
+
 
     def run(self):
         try:
@@ -29,6 +29,7 @@ class Stream(Conector):
             self.escutar()
         except KeyboardInterrupt:
             print("\n----- 1 - Servidor encerrado -----\n")
+        self.orq.fechar()
         self.fechar()
     
     def escutar(self):
@@ -38,7 +39,28 @@ class Stream(Conector):
         self.atendimento()
     
     def atendimento(self):
-        pass
+        while True:
+            opL = self.orq.receberLista()
+            op = int(opL[0])
+            self.selecao(op)
+    
+
+    def selecao(self, op:int):
+        if op == 1:
+            self.menu()
+        elif op == 0:
+            print("Obrigado!")
+            self.orq.fechar()
+            self.fechar()
+
+
+    def menu(self):
+        # Função que envia o menu:
+        m = f"{len(self.filmes)};"
+        for filme in self.filmes:
+            m += f"{filme.id} - {filme.nome} ({filme.ano}) - {filme.duracao} min\n"
+        self.orq.enviar(m)
+
 
 
 

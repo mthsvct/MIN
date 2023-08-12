@@ -1,6 +1,6 @@
 import socket
 from conector import Conector
-
+from threading import Thread
 
 class OrqStream(Conector):
 
@@ -16,3 +16,9 @@ class OrqStream(Conector):
     
     def run(self):
         self.rodarCliente()
+    
+    
+    def receberMenu(self):
+        # Caso precise fazer alguma alteração farei aqui.
+        self.enviar(f"{1};{0}")
+        return self.receber()

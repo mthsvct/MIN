@@ -1,5 +1,6 @@
 import socket
 from conector import Conector
+from orqFilme import OrqFilme
 from threading import Thread
 
 class OrqStream(Conector):
@@ -13,12 +14,38 @@ class OrqStream(Conector):
     ) -> None:
         super().__init__(host, port, conn, addr)
 
-    
     def run(self):
         self.rodarCliente()
-    
     
     def receberMenu(self):
         # Caso precise fazer alguma alteração farei aqui.
         self.enviar(f"{1};{0}")
         return self.receber()
+
+    def recebeFilme(self, idFilme:int) -> OrqFilme:
+        print(f"IdFilme: {idFilme}")
+        self.enviar(f"{2};{idFilme}")
+        filme = self.recebeCabecalho()
+        filme.dados = self.recebeDados(filme.duracao)
+        return filme
+
+    def recebeCabecalho(self):
+        print("\n" * 3)
+        cabecalho = self.receber()
+        print(cabecalho)
+        lista = cabecalho.split(";")
+        print(lista)
+        idFilme, nome, ano, genero, duracao = int(lista[0]), lista[1], int(lista[2]), lista[3], int(lista[4])
+        filme = OrqFilme(idFilme, nome, ano, genero, duracao)
+        print("\n" * 3)
+        return filme
+    
+    def recebeDados(self, duracao:int):
+        dados = []
+        frame = ""
+        while "#" not in frame:
+            frame = self.receber()
+            if "#" not in frame:
+                dados.append(int(frame))
+            print(f"Frame recebido: {frame} / {duracao}")
+        return dados

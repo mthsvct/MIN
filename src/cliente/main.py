@@ -1,6 +1,6 @@
 import socket
 from conector import Conector
-
+from time import sleep
 
 
 class Cliente(Conector):
@@ -42,8 +42,8 @@ class Cliente(Conector):
         op = -1
         while op != 0:
             op = self.menu() # Solicita o Menu de filmes do Orquestrador
-            if op != 0: self.selecao() # Se opção for diferente de 0, solicita a seleção de um filme
-
+            if op != 0: 
+                self.selecao() # Se opção for diferente de 0, solicita a seleção de um filme
 
     def menu(self):
         qnt = self.apresentaMenu()
@@ -51,20 +51,21 @@ class Cliente(Conector):
         while op < 0 or op > qnt:
             op = int(input("Digite a opção: "))
         self.enviar(f"{op}")
+        print("\n\n")
         return op
 
 
     def apresentaMenu(self):
         l = self.receberLista()
         qnt, menu= int(l[0]), l[1]
-        print(f"----- Menu de Filmes -----")
+        print(f"\n\n----- Menu de Filmes -----")
         print(menu, end="")
         print("0 - Sair")
         return qnt
 
 
     def selecao(self):
-        pass
+        _ = self.receber()
 
 
 if __name__ == "__main__":

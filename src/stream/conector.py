@@ -19,24 +19,24 @@ class Conector:
     def fechar(self):
         if self.conn != None:
             self.conn.close()
-            print("\n----- Conexão fechada -----\n")
+            print("\n-- Conexão fechada --\n")
         else:
-            print("\n----- Conexão não estabelecida -----\n")
+            print("\n-- Conexão não estabelecida --\n")
     
     def enviar(self, msg:str):
         if self.conn != None: 
             self.conn.send(msg.encode())
             # print(f"\n----- Enviado: {msg} para {self.addr} -----\n")
         else:
-            print("\n----- Conexão não estabelecida -----\n")
+            print("\n-- Conexão não estabelecida --\n")
 
     def receber(self):
         msg = None
         if self.conn != None:
             msg = self.conn.recv(1024).decode()
-            # print(f"\n----- Recebido: {msg} de {self.addr} -----\n")
+            # print(f"\n-- Recebido: {msg} de {self.addr} --\n")
         else:
-            print("\n----- Conexão não estabelecida -----\n")
+            print("\n-- Conexão não estabelecida --\n")
         return msg
     
     def receberInt(self):
@@ -58,10 +58,10 @@ class Conector:
         while True:
             try:
                 self.conn.bind((self.host, self.port))
-                print(f"\n---- Servidor rodando em {self.host}:{self.port} ----\n")
+                print(f"\n-- Servidor rodando em {self.host}:{self.port} --\n")
                 break
             except OSError:
-                print("\n----- Porta em uso, tentando novamente em 3 segundos ----- \n")
+                print("\n-- Porta em uso, tentando novamente em 3 segundos -- \n")
                 sleep(3)
 
     # ------------------- CONN será um CLIENTE ------------------- #
@@ -74,9 +74,9 @@ class Conector:
         while True:
             try:
                 self.conn.connect((self.host, self.port))
-                print(f"\n----- Conectado a {self.host}:{self.port} -----\n")
+                print(f"\n-- Conectado a {self.host}:{self.port} --\n")
                 break
             except OSError:
-                print("\n----- Servidor não encontrado, tentando novamente em 3 segundos ----- \n")
+                print("\n-- Servidor não encontrado, tentando novamente em 3 segundos -- \n")
                 sleep(3)
 

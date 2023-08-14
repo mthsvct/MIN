@@ -2,6 +2,7 @@ from conector import Conector
 from filme import Filme
 from strOrq import StrOrq
 from time import sleep
+from threading import Thread
 
 class Stream(Conector):
 
@@ -76,7 +77,8 @@ class Stream(Conector):
         filme = self.buscarFilme(idFilme)
         if filme != None:
             self.orq.enviar(filme.cabecalho)
-            self.enviarDados(filme)
+            self.enviarDados(filme.dados, filme.duracao)
+            print(f"{filme.nome} ({filme.ano}): Enviado ao ORQ com sucesso!")
         else:
             self.orq.enviar("0;Filme não encontrado!")
         
@@ -88,13 +90,13 @@ class Stream(Conector):
         return None
 
 
-    def enviarDados(self, filme:Filme):
-        for dado in filme.dados:
+    def enviarDados(self, dados:list, duracao:int=None):
+        for dado in dados:
             self.orq.enviar(f"{dado}")
-            print(f"Frame {dado} / {filme.duracao}")
+            print(f"Frame ENVIADO: {dado} / {duracao}")
             sleep(0.1)
         self.orq.enviar("#")
-        print(f"{filme.nome} ({filme.ano}): Enviado com sucesso!")
+        
 
 
 

@@ -46,6 +46,8 @@ class Conector:
     def receberLista(self):
         msg = self.receber()
         return msg.split(";") if msg != None else None
+    
+    
 
     # ------------------- CONN será um SERVIDOR ------------------- #
     

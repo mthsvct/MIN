@@ -1,4 +1,5 @@
 import socket
+from time import sleep
 from conector import Conector
 from orqFilme import OrqFilme
 from threading import Thread
@@ -12,6 +13,8 @@ class OrqStream(Conector):
         conn:socket.socket=None, 
         addr:tuple=None
     ) -> None:
+        self.blocked:bool = False # True - Bloqueado, False - Desbloqueado.
+        # Blocked serve para bloquear o envio de filmes para os clientes.
         super().__init__(host, port, conn, addr)
 
     def run(self):
@@ -23,21 +26,32 @@ class OrqStream(Conector):
         return self.receber()
 
     def recebeFilme(self, idFilme:int) -> OrqFilme:
-        print(f"IdFilme: {idFilme}")
+
+        while self.blocked == True:
+            print("O servidor de STREAM, está ocupado. Aguardando 1 segundo.\n")
+            sleep(1)
+
+        self.blocked = True
+        # print(f"IdFilme: {idFilme}")
         self.enviar(f"{2};{idFilme}")
         filme = self.recebeCabecalho()
         filme.dados = self.recebeDados(filme.duracao)
+        self.blocked = False
         return filme
 
     def recebeCabecalho(self):
-        print("\n" * 3)
+        # print("\n" * 3)
         cabecalho = self.receber()
-        print(cabecalho)
+        # print(cabecalho)
         lista = cabecalho.split(";")
-        print(lista)
-        idFilme, nome, ano, genero, duracao = int(lista[0]), lista[1], int(lista[2]), lista[3], int(lista[4])
+        # print(lista)a
+        idFilme = int(lista[0])
+        nome = lista[1]
+        ano = int(lista[2])
+        genero = lista[3]
+        duracao = int(lista[4])
         filme = OrqFilme(idFilme, nome, ano, genero, duracao)
-        print("\n" * 3)
+        # print("\n" * 3)
         return filme
     
     def recebeDados(self, duracao:int):
@@ -47,5 +61,5 @@ class OrqStream(Conector):
             frame = self.receber()
             if "#" not in frame:
                 dados.append(int(frame))
-            print(f"Frame recebido: {frame} / {duracao}")
+            print(f"Frame  recebido: {frame} / {duracao}")
         return dados

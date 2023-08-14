@@ -1,7 +1,9 @@
 import socket
-from conector import Conector
 from time import sleep
 
+from conector import Conector
+from cliVideo import CliVideo
+from cliFilme import CliFilme
 
 class Cliente(Conector):
 
@@ -17,7 +19,9 @@ class Cliente(Conector):
         self.x:int = int(input("Digite a posição x: "))
         self.y:int = int(input("Digite a posição y: "))
         self.hostOrq:str = "localhost"
-        self.portOrq:int = 3000 
+        self.portOrq:int = 3000
+        self.video:CliVideo = None
+        self.filme:CliFilme = None
         super().__init__(self.hostOrq, self.portOrq, conn, addr)
 
 
@@ -54,7 +58,6 @@ class Cliente(Conector):
         print("\n\n")
         return op
 
-
     def apresentaMenu(self):
         l = self.receberLista()
         qnt, menu= int(l[0]), l[1]
@@ -63,9 +66,22 @@ class Cliente(Conector):
         print("0 - Sair")
         return qnt
 
-
     def selecao(self):
-        _ = self.receber()
+        self.iniciaVideo()
+
+    def iniciaVideo(self):
+        endLista = self.receberLista()
+        host, port, distancia = endLista[0], int(endLista[1]), float(endLista[2])
+        print("Distancia: ", distancia)
+        self.video = CliVideo(host=host, port=port, distancia=distancia)
+        self.video.run(idOrq=self.id)
+        self.filme = self.video.exibirFilme()
+        print("----- Filme recebido e assistido! -----")
+        print(self.filme)
+        print("\n" * 2)
+
+
+
 
 
 if __name__ == "__main__":

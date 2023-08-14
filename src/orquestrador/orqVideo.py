@@ -1,6 +1,7 @@
 import socket
+from time import sleep
 from conector import Conector
-
+from orqFilme import OrqFilme
 
 class OrqVideo(Conector):
 
@@ -20,20 +21,54 @@ class OrqVideo(Conector):
         self.x = x
         self.y = y
         self.status = status
-        self.filme = None
+        self.filme:OrqFilme = None
         self.limite:int = 3,
         self.clientes:list = []
+        self.transmitindo:bool = False
+        self.recebendo:bool= False
         super().__init__(host, port, conn, addr)
         OrqVideo.id += 1
 
+    def __str__(self) -> str:
+        return f"id: {self.id}, \nx: {self.x}, y: {self.y}, \nstatus: {self.status}, \nlimite: {self.limite}, \nclientes: {len(self.clientes)}, \nfilme: {self.filme}\n"
+
+    def __repr__(self) -> str:
+        return f"OrqVideo(id={self.id}, x={self.x}, y={self.y}, status={self.status}, limite={self.limite}, clientes={len(self.clientes)}, filme={self.filme})\n\n"
+
+    def infos(self) -> str:
+        return f"id: {self.id}\nx: {self.x}, y: {self.y}\nHa vaga: {self.haVaga()}\nStatus: {self.statusStr()}\nLimite: {self.limite}\nClientes: {len(self.clientes)}\nFilme: {self.filme}"
+
     def run(self):
         self.rodarCliente()
-        self.enviar("1")
+        self.enviar("1;0")
         self.limite = self.receberInt()
-        print(f"\n -- Limite enviado pelo video: {self.limite} -- \n")
+        # print(f"\n -- Limite enviado pelo video: {self.limite} -- \n")
 
     def haVaga(self):
         # Retorna
             # 1: True - Se há vaga
             # 2: Quantas vagas ainda há
         return len(self.clientes) < self.limite, self.limite - len(self.clientes)
+
+    def statusStr(self):
+        return "Disponível" if self.status == 0 else "Ocupado"    
+
+    def transmitirFilme(self, filme:OrqFilme):
+
+        if filme != None:
+            # self.recebendo = True
+            self.enviar("1;0;")
+            self.enviar(filme.cabecalho)
+            self.enviarDados(dados=filme.dados, duracao=filme.duracao)
+            print(f"{filme.nome} ({filme.ano}): Enviado ao VIDEO com sucesso!")
+            # self.recebendo = False
+        else:
+            self.enviar("0;Filme não encontrado!")
+        
+    
+    def enviarDados(self, dados:list, duracao:int=None):
+        for dado in dados:
+            self.enviar(f"{dado}")
+            print(f"Frame ENVIADO: {dado} / {duracao}")
+            sleep(0.1)
+        self.enviar("#")

@@ -17,6 +17,6 @@ class Filme:
         self.ano = ano
         self.genero = genero
         self.duracao = duracao
-        self.cabecalho = f"{self.id};{self.nome};{self.ano};{self.genero};{self.duracao}"
+        self.cabecalho = f"{self.id};{self.nome};{self.ano};{self.genero};{self.duracao};"
         self.dados = [x for x in range(1, self.duracao+1)]
         Filme.id += 1

@@ -1,4 +1,4 @@
-class OrqFilme:
+class VidFilme:
 
     def __init__(
         self,

@@ -74,7 +74,7 @@ class Conector:
         while True:
             try:
                 self.conn.connect((self.host, self.port))
-                print(f"\n-- Conectado a {self.host}:{self.port} --\n")
+                # print(f"\n-- Conectado a {self.host}:{self.port} --\n")
                 break
             except OSError:
                 print("\n-- Servidor não encontrado, tentando novamente em 3 segundos -- \n")

@@ -27,6 +27,7 @@ class Cliente(Conector):
 
     def run(self):
         self.rodarCliente() # Inicia o socket e conecta com o ORQ
+        print("\n- Cliente conectado ao Orquestrador -\n")
         self.identificar()  # Recebe o ID do cliente vindo do ORQ
         self.enviarPos()    # Envia posicao x e y para o ORQ
         self.atendimento()  # Recebe o IP e PORTA do servidor de jogo

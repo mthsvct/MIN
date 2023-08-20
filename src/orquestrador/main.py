@@ -76,26 +76,24 @@ class Orq(Conector):
         self.rodarServ()
         self.escutar()
 
+
     def escutar(self):
         while True:
-            conn, addr = self.conn.accept()
+            conn, addr = self.conn.accept() # Aceita a conexão
             print(f"\n-- Conexão estabelecida com cliente ({addr}) --\n")
-            cliente = OrqCliente(conn=conn, addr=addr)
-            self.clientes.append(cliente)
-            nova = Thread(target=self.atendimento, args=(cliente,))
-            self.thrs.append(nova)
-            nova.start()
+            cliente = OrqCliente(conn=conn, addr=addr) # Cria um objeto cliente
+            self.clientes.append(cliente) # Adiciona o cliente na lista de clientes
+            nova = Thread(target=self.atendimento, args=(cliente,)) # Cria uma thread para atender o cliente
+            self.thrs.append(nova) # Adiciona a thread na lista de threads
+            nova.start() # Inicia a thread
     
+
     def atendimento(self, cliente:OrqCliente):
-        # try:
         print(f"\nAtendimento iniciado... ao cliente {cliente.id}\n")
         cliente.inicializacao(self.convertePraLista()) # Função que fará etapas iniciais do cliente
         self.gerExibicaoFilmes(cliente) # Função que fará a exibição de filmes para o cliente
 
-        # except (KeyboardInterrupt, ConnectionResetError) as e:
-        #     print("Conexão com cliente encerrado!")
-        #     print(f"Erro dado: {e}")
-        #     self.fechaTudo()
+        
 
     def gerExibicaoFilmes(self, cliente:OrqCliente):
         op = -1
@@ -103,83 +101,87 @@ class Orq(Conector):
             op = self.menu(cliente) # Requisita, recebe o menu do STREAM e depois envia ao CLIENTE
             self.selecao(cliente, op) # Recebe a seleção do cliente e segue as funções de acordo com a opção
 
+
     def menu(self, cliente:OrqCliente):
-        menu = self.stream.receberMenu()
-        cliente.enviarMenu(menu)
-        op = cliente.receberInt()
+        menu = self.stream.receberMenu() # Recebe o menu do STREAM
+        cliente.enviarMenu(menu) # Envia o menu ao CLIENTE
+        op = cliente.receberInt() # Recebe a opção do CLIENTE
         print(f"-- Opção recebida: {op} - {type(op)} --")
-        return op
+        return op # Retorna a opção para a função gerExibicaoFilmes
         
+
     def selecao(self, cliente:OrqCliente, op:int):
         if op == 0:
             # Encerrar conexão com cliente
             cliente.fechar()
         else:
+            # Transmitir filme
             self.transmitir(cliente, op)
 
     def transmitir(self, cliente:OrqCliente, op:int):
-        video, caso = self.selecionarVideo(cliente, op)
-        self.selecionarCaso(cliente, video['video'], video['distancia'], caso, op)
+        video, caso = self.selecionarVideo(cliente, op) # Seleciona o vídeo que irá transmitir o filme. Caso é o tipo de caso que ocorreu.
+        self.selecionarCaso(cliente, video['video'], video['distancia'], caso, op) # Seleciona o caso que ocorreu e segue com as funções de acordo com o caso.
         
     def selecionarVideo(self, cliente:OrqCliente, op:int):
-        vidSel = None
-        caso = -1
+        vidSel = None # Vídeo selecionado
+        caso = -1 # Caso que ocorreu
 
-        # Caso = 1: Há algum vídeo transmitindo o filme, verifica se há vagas
-        # Caso = 2: Não há nenhum vídeo transmitindo o filme, verifica se há vídeos disponíveis
-
-        while vidSel == None:
+        while vidSel == None: # Enquanto não selecionar um vídeo, irá repetir o processo.
 
             comFilme, comStatus, comFilmeEStatus = self.buscaVideo(idFilme=op, status=0) # Busca o vídeo que já esteja transmitindo o filme. 
 
-            print()            
-            print("Com filme: ", comFilme)
-            print("Com status: ", comStatus)
-            print("Com filme e status: ", comFilmeEStatus)
-            print()
-            
             if len(comFilme) > 0:
                 # Tem algum vídeo transmitindo o filme:
                 # No caso, verifica se há vagas nele.
-                vidSel = self.pertoComVaga(cliente, comFilme)
-                caso = 1
+                print("-------- ENTROU NESTE CASO --------")
+                vidSel = self.pertoComVaga(cliente, comFilme) # Seleciona o vídeo mais próximo que tenha vaga.
+                print(f"\n-------- VÍDEO SELECIONADO: {vidSel['video'].id} --------\n")
+                vidSel['video'].clientes.append(cliente) # Adiciona o cliente na lista de clientes do vídeo.
+                caso = 1 # Caso 1: O vídeo já transmite o filme e há vagas.
 
+                while self.stream.blocked == True:
+                    print("\n ++++++ O ORQ ainda está recebendo este filme. Aguarde um momento. Por favor. \n")
+                    sleep(3)
+                
+                while self.videos['comFilme'][self.videos['comFilme'].index(vidSel['video'])].recebendo == True:
+                    print("\n ****** O vídeo ainda está recebendo o filme. por favor aguarde ")
+                    sleep(1.2)
+
+                while self.videos['comFilme'][self.videos['comFilme'].index(vidSel['video'])].limite + 1 <= len(self.videos['comFilme'][self.videos['comFilme'].index(vidSel['video'])].clientes):
+                    print("\n ++++++ O vídeo está lotado. Aguarde um momento. Por favor.")
+                    sleep(3)
+                    
+                    
             elif len(comStatus) > 0:
                 # Não tem nenhum vídeo transmitindo o filme:
-                vidSel = self.pertoComVaga(cliente, comStatus)
-                caso = 2
-                vidSel['video'].filme = OrqFilme(op)
-                vidSel['video'].clientes.append(cliente)
-                self.videos['comFilme'].append(vidSel['video'])
-                self.videos['semFilme'].remove(vidSel['video'])
+                vidSel = self.pertoComVaga(cliente, comStatus) # Seleciona o vídeo mais próximo que não esteja transmitindo o filme.
+                caso = 2 # Caso 2: Não há nenhum vídeo transmitindo o filme, mas ele é o mais proximo.
+                vidSel['video'].filme = OrqFilme(op) # Adiciona o filme ao vídeo.
+                vidSel['video'].clientes.append(cliente) # Adiciona o cliente na lista de clientes do vídeo.
+                self.videos['comFilme'].append(vidSel['video']) # Adiciona o vídeo na lista de vídeos que transmitem o filme.
+                self.videos['semFilme'].remove(vidSel['video']) # Remove o vídeo da lista de vídeos que não transmitem o filme.
 
             elif len(comFilmeEStatus) > 0:
-                vidSel = self.pertoComVaga(cliente, comFilmeEStatus)
-                vidSel['video'].filme = OrqFilme(id=op)
-                vidSel['video'].clientes.append(cliente)
-                caso = 2
+                # Possui um filme, mas pode ser substituido pq não tem clientes assistindo.
+                vidSel = self.pertoComVaga(cliente, comFilmeEStatus) # Seleciona o vídeo mais próximo que não esteja transmitindo o filme.
+                vidSel['video'].filme = OrqFilme(id=op) # Adiciona o filme ao vídeo.
+                vidSel['video'].clientes.append(cliente) # Adiciona o cliente na lista de clientes do vídeo.
+                caso = 2 # Caso 2: Esse vídeo possui um filme, mas como não tem nenhum cliente assistindo então o filme pode ser substituido.
 
             else:
-                print("Não há videos transmitindo esse filme e nem videos disponíveis.")
-                print("Aguardando 5 segundos para verificar novamente.")
-                sleep(5)
+                # Não tem nenhum vídeo transmitindo o filme e nem tem nenhum vídeo disponível.
+                print("\nNão há videos transmitindo esse filme e nem videos disponíveis.")
+                print("Aguardando 5 segundos para verificar novamente.\n")
+                sleep(3) # Aguarda 2 segundos para verificar novamente.
 
+        return vidSel, caso # Retorna o vídeo selecionado e o caso que ocorreu.
 
-
-        print(f"Vídeo selecionado: {vidSel['video'].id} - {vidSel['video'].filme} - {vidSel['distancia']}")
-        print(f"--------------- CASO: {caso} ---------------")
-
-        
-
-        return vidSel, caso
 
     def buscaVideo(self, idFilme:int=None, status:int=0):        
 
-        comFilme = []
-        for v in self.videos['comFilme']:
-            print(f"{v.filme} == {idFilme} : {v.filme == None}")
+        comFilme = [] # Lista de vídeos que já transmitem o filme.
+        for v in self.videos['comFilme']: 
             if v.filme != None:
-                print(f"{v.filme.id} == {idFilme} : {v.filme.id == idFilme}")
                 if v.filme.id == idFilme:
                     comFilme.append(v)
         
@@ -187,38 +189,46 @@ class Orq(Conector):
         for v in self.videos['semFilme']:
             if v.status == status and v.filme == None:
                 comStatus.append(v)
-                
         
         comFilmeEStatus = []
         for v in self.convertePraLista():
             if v.status == status and (v.filme != None and v.filme.id != idFilme) and len(v.clientes) == 0:
                 comFilmeEStatus.append(v)
-
         
+        # Retorna as listas de vídeos que já transmitem o filme, 
+        # que não transmitem o filme 
+        # e que possuem um filme, mas não tem clientes assistindo.
         return comFilme, comStatus, comFilmeEStatus
 
+
     def pertoComVaga(self, cliente:OrqCliente, videos:list) -> OrqVideo:
-        proximos = self.maisPerto(cliente, videos)
+        proximos = self.maisPerto(cliente, videos) # Retorna uma lista de vídeos ordenados por proximidade.
         for v in proximos:
             if v['video'].haVaga()[0]:
                 return v
         return None
                 
     def maisPerto(self, cliente:OrqCliente, videos:list):
+        # Retorna uma lista de vídeos ordenados por proximidade.
         distancias = []
         for v in videos:
             distancias.append({'video': v, 'distancia': cliente.buscaDistancia(v.id)})
         distancias.sort(key=lambda x: x['distancia'])
-        print("Distancias: ", distancias)
         return distancias
     
     def selecionarCaso(self, cliente:OrqCliente, video:OrqVideo=None, distancia:float=None, caso:int=None, op:int=None):
         # Caso = 1: O video está transmitindo esse filme e há vagas
         # Caso = 2: Não há nenhum vídeo transmitindo o filme, mas ele é o mais proximo.
-        # video: {'video': OrqVideo, 'distancia': float}
-        # print("\n--------\n", video, distancia, caso, op)
 
-        if caso == 1: 
+        while self.stream.blocked == True:
+            print("\n ++++++ O ORQ ainda está recebendo este filme. Aguarde um momento. Por favor. \n")
+            sleep(3)
+        
+        while video.recebendo == True:
+            print("\n ****** O vídeo ainda está recebendo o filme. por favor aguarde ")
+            sleep(1.2)
+
+        if caso == 1:
             #print(f"Caso {caso}. Transmitindo o filme {video.filme}; O cliente {cliente.id} irá se conectar.")
             print(f"Caso 1. Transmitindo o filme {video.filme}; O cliente {cliente.id} irá se conectar.")
             self.exibirFilme(cliente, video, distancia)
@@ -256,10 +266,8 @@ class Orq(Conector):
         idFilme = int(sinal[3])
 
         video.status = status
-        # video.clientes.append(cliente)
 
         print(f"->>> Sinal recebido: {sinal}. <<<-")
-
         sinalEncerramento = video.receberLista() # Virá um sinal com: id do cliente, status e qnt clientes no momento. 
         print(f"->>> Sinal de ENCERRAMENTO recebido: {sinalEncerramento}. <<<-")
         video.clientes.remove(cliente)

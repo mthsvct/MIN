@@ -59,5 +59,5 @@ class CliVideo(Conector):
             frame = self.receber()
             if "#" not in frame:
                 dados.append(int(frame))
-            print(f"Frame recebido: {frame} / {duracao}")
+            print(f"Frame recebido do VIDEO: {frame} / {duracao}")
         return dados

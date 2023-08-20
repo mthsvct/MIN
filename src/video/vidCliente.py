@@ -27,19 +27,17 @@ class VidCliente(Conector):
 
     def transmitirFilme(self, filme:VidFilme):
         if filme != None:
-            print(f"INICIO da transmissão do filme {filme}:\npara o cliente {self}\nCom a latencia = {self.latencia}")
-            # self.enviar(f"1;SInal bom")
+            print(f"\n\nTransmissão do filme {filme}:\npara o cliente {self}\nCom a latencia = {self.latencia}\n\n")
             self.enviar(filme.cabecalho)
             self.enviarDados(dados=filme.dados, duracao=filme.duracao)
             print(f"{filme.nome} ({filme.ano}): Enviado ao VIDEO com sucesso!")
         else:
             self.enviar("0;Filme não encontrado!")
 
-
     def enviarDados(self, dados:list, duracao:int=None):
         for dado in dados:
             self.enviar(f"{dado}")
-            print(f"Frame ENVIADO: {dado} / {duracao}")
+            print(f"Frame ENVIADO ao CLIENTE: {dado} / {duracao}")
             sleep(self.latencia)
         self.enviar("#")
         

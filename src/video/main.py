@@ -103,9 +103,6 @@ class Video(Conector):
 
     
     def atendimentoCli(self, cliente:VidCliente):
-
-        
-
         cliente.transmitirFilme(self.filme) # Envia o filme para o cliente
         self.clientes.remove(cliente)       # Após a transmissão do filme, o cliente é removido da lista de clientes
         self.informarOrqSaiu(cliente)       # Informa ao orquestrador que o cliente saiu

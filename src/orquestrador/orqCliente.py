@@ -31,8 +31,7 @@ class OrqCliente(Conector):
     def receberPos(self):
         pos = self.receberLista()
         self.x, self.y = int(pos[0]), int(pos[1])
-        # print(f"----- Posição do cliente {self.id}: {self.x};{self.y} -----")
-
+        
 
     def enviarMenu(self, menu:str):
         # Caso seja necessário realizar alguma alteração, farei aqui.

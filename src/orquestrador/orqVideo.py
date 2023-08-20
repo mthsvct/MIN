@@ -25,7 +25,7 @@ class OrqVideo(Conector):
         self.limite:int = 3,
         self.clientes:list = []
         self.transmitindo:bool = False
-        self.recebendo:bool= False
+        self.recebendo:bool = False
         super().__init__(host, port, conn, addr)
         OrqVideo.id += 1
 
@@ -42,7 +42,6 @@ class OrqVideo(Conector):
         self.rodarCliente()
         self.enviar("1;0")
         self.limite = self.receberInt()
-        # print(f"\n -- Limite enviado pelo video: {self.limite} -- \n")
 
     def haVaga(self):
         # Retorna
@@ -56,12 +55,12 @@ class OrqVideo(Conector):
     def transmitirFilme(self, filme:OrqFilme):
 
         if filme != None:
-            # self.recebendo = True
+            self.recebendo = True
             self.enviar("1;0;")
             self.enviar(filme.cabecalho)
             self.enviarDados(dados=filme.dados, duracao=filme.duracao)
+            self.recebendo = False
             print(f"{filme.nome} ({filme.ano}): Enviado ao VIDEO com sucesso!")
-            # self.recebendo = False
         else:
             self.enviar("0;Filme não encontrado!")
         
@@ -69,6 +68,6 @@ class OrqVideo(Conector):
     def enviarDados(self, dados:list, duracao:int=None):
         for dado in dados:
             self.enviar(f"{dado}")
-            print(f"Frame ENVIADO: {dado} / {duracao}")
+            print(f"Frame ENVIADO ao VIDEO: {dado} / {duracao}")
             sleep(0.1)
         self.enviar("#")
